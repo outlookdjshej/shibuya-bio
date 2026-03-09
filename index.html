@@ -1,0 +1,88 @@
+<div id="game-box" style="text-align:center; font-family:sans-serif; background:white; color:black; padding:25px; border:6px solid black; max-width:320px; margin:auto; border-radius:25px; box-shadow: 10px 10px 0px #000;">
+  
+  <h2 id="status" style="font-size:18px; font-weight:900; line-height:1.4;">
+    10秒以内に連打せよ！<br>
+    <span style="font-size:12px; font-weight:normal;">最初のクリックでタイマー開始</span>
+  </h2>
+  
+  <div id="timer-display" style="font-size:24px; font-weight:900; margin:10px 0; visibility:hidden; background:#eee; display:inline-block; padding:5px 15px;">TIME: <span id="seconds">10.0</span>s</div>
+
+  <br>
+  <button id="clickBtn" style="width:140px; height:140px; border-radius:50%; background:black; color:white; font-size:40px; border:none; outline:none; transition:transform 0.05s; cursor:pointer; font-weight:900;">0</button>
+  
+  <div id="result" style="display:none; margin-top:20px; border-top:4px solid black; padding-top:20px;">
+    <p id="final-msg" style="font-weight:900; font-size:18px; line-height:1.5; color:#ff0000;"></p>
+    <p style="font-size:13px; font-weight:bold; margin-top:10px; color:#333;">
+      （日本語は全く喋れません。英語のGoogle翻訳を使ってください！）
+    </p>
+    <button id="restartBtn" style="margin-top:15px; background:black; color:white; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; border-radius:5px;">もう一度挑戦 / RESTART</button>
+  </div>
+</div>
+
+<script>
+  let clicks = 0;
+  let timeLeft = 10.0;
+  let timerActive = false;
+  let gameEnded = false;
+  let timerInterval;
+
+  const btn = document.getElementById('clickBtn');
+  const timerDiv = document.getElementById('timer-display');
+  const timeSpan = document.getElementById('seconds');
+  const resultDiv = document.getElementById('result');
+  const msgP = document.getElementById('final-msg');
+  const statusH2 = document.getElementById('status');
+  const restartBtn = document.getElementById('restartBtn');
+
+  btn.onclick = () => {
+    if (gameEnded) return;
+
+    if (!timerActive) {
+      timerActive = true;
+      timerDiv.style.visibility = 'visible';
+      timerInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        timeSpan.innerText = Math.max(0, timeLeft).toFixed(1);
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 100);
+    }
+
+    clicks++;
+    btn.innerText = clicks;
+    btn.style.transform = "scale(0.9)";
+    setTimeout(() => { btn.style.transform = "scale(1)"; }, 50);
+  };
+
+  function endGame() {
+    gameEnded = true;
+    timerActive = false;
+    btn.style.background = "#ddd";
+    btn.style.color = "#888";
+    resultDiv.style.display = 'block';
+
+    if (clicks >= 50) {
+      msgP.innerHTML = "もうファンだって認めなよ。<br>さっさと写真を撮ろうぜ！";
+    } else {
+      msgP.innerText = clicks + "回？遅すぎ！もっと気合入れて！";
+    }
+  }
+
+  // THE RESTART LOGIC
+  restartBtn.onclick = () => {
+    clearInterval(timerInterval); // Stop any existing timer
+    clicks = 0;
+    timeLeft = 10.0;
+    gameEnded = false;
+    timerActive = false;
+    
+    btn.innerText = "0";
+    btn.style.background = "black";
+    btn.style.color = "white";
+    timeSpan.innerText = "10.0";
+    timerDiv.style.visibility = 'hidden';
+    resultDiv.style.display = 'none';
+  };
+</script>
